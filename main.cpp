@@ -8,8 +8,8 @@ using std::cout;
 using std::vector;
 using std::string;
 
-const int WIDTH = 20;
-const int HEIGHT = 20;
+const int WIDTH = 15;
+const int HEIGHT = 15;
 const vector<int> snakeStartCoords = {WIDTH / 2, HEIGHT / 2};
 
 #define RESETCOLOR "\033[0m"
@@ -231,7 +231,7 @@ public:
                 gameOver = true;
             }
 
-            Sleep(100); // Sleep for 100ms to make the game run at a reasonable speed
+            Sleep(75); // Sleep for 100ms to make the game run at a reasonable speed
         }   
     }
 };
