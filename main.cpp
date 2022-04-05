@@ -3,12 +3,18 @@
 #include <conio.h>
 #include <vector>
 
+using std::cin;
 using std::cout;
 using std::vector;
+using std::string;
 
 const int WIDTH = 20;
 const int HEIGHT = 20;
 const vector<int> snakeStartCoords = {WIDTH / 2, HEIGHT / 2};
+
+#define RESETCOLOR "\033[0m"
+#define GREEN "\033[22;32m"
+#define RED "\033[22;31m"
 
 class Fruit
 {
@@ -23,6 +29,12 @@ public:
     {
         coords.clear();
         coords = {rand() % WIDTH, rand() % HEIGHT};
+
+        for (vector<int> snakePart : snakeCoords)
+        {
+            if (coords == snakePart)  // Get new coords if the apple is inside the snake
+                getNewCoords(snakeCoords);
+        }
     }
 };
 
@@ -37,7 +49,7 @@ public:
         coords.push_back(snakeStartCoords);
     }
 
-    void move()
+    void move()  // Move the snake
     {
         switch (direction)
         {
@@ -126,7 +138,7 @@ public:
                     break;
 
                 case 'x':
-                    gameOver = true;
+                    exit(0);
                     break;
             }
         }
@@ -136,29 +148,27 @@ public:
     {
         system("cls");
 
-        cout << "Score: " << snake.coords.size() - 1 << "\n";
-
         // Print the top border
-        for (int x = 0; x < WIDTH * 2 - 1; x++)
+        for (int x = 0; x < WIDTH * 2 + 3; x++)
             cout << "#";
         cout << "\n";
 
         // Iterate through all positions on the board
         for (int y = 0; y < HEIGHT; y++)
         {
-            for (int x = 0; x < WIDTH; x++)
+            for (int x = -1; x <= WIDTH; x++)
             {
                 // Print the left and right border
-                if (x == 0 || x == WIDTH - 1)
+                if (x == -1 || x == WIDTH)
                     cout << "#";
                 
                 // Print the snake head
                 else if (vector<int> {x, y} == snake.coords.back())
-                    cout << "O";
+                    cout << GREEN << "O" << RESETCOLOR;
                 
                 // Print the snake body
                 else if (vector<int> {x, y} == fruit.coords)
-                    cout << "F";
+                    cout << RED << "*" << RESETCOLOR;
 
                 else
                 {
@@ -169,7 +179,7 @@ public:
                     {
                         if (vector<int> {x, y} == coord)
                         {
-                            cout << "o";
+                            cout << GREEN << "o" << RESETCOLOR;
                             snakePart = true;
                             break;
                         }
@@ -185,9 +195,11 @@ public:
         }
 
         // Print the bottom border
-        for (int x = 0; x < WIDTH * 2 - 1; x++)
+        for (int x = 0; x < WIDTH * 2 + 3; x++)
             cout << "#";
         cout << "\n";
+
+        cout << "Score: " << snake.coords.size() - 1 << "\n";
     }
 
     void runGame()
@@ -224,10 +236,22 @@ public:
     }
 };
 
-
 int main()
 {
-    Game g;
-    g.runGame();
+    while (true)
+    {
+        Game game;
+        game.runGame();
+
+        cout << "Play again? (y/n): ";
+        char playAgain;
+        cin >> playAgain;
+
+        if (playAgain == 'n')
+            break;
+        
+        else if (playAgain == 'y')
+            continue;
+    }
     return 0;
 }
