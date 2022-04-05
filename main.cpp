@@ -8,13 +8,18 @@ using std::cout;
 using std::vector;
 using std::string;
 
-const int WIDTH = 15;
-const int HEIGHT = 15;
-const vector<int> snakeStartCoords = {WIDTH / 2, HEIGHT / 2};
-
 #define RESETCOLOR "\033[0m"
 #define GREEN "\033[22;32m"
 #define RED "\033[22;31m"
+
+const int WIDTH = 15;
+const int HEIGHT = 15;
+const vector<vector<int>> snakeStartCoords = { 
+    {(WIDTH / 2) - 1, HEIGHT / 2},
+    {WIDTH / 2, HEIGHT / 2}
+};
+
+enum eDirection {UP, DOWN, LEFT, RIGHT};
 
 class Fruit
 {
@@ -22,7 +27,7 @@ public:
     vector<int> coords;
     Fruit()
     {
-        getNewCoords({snakeStartCoords});
+        getNewCoords(snakeStartCoords);
     }
 
     void getNewCoords(vector<vector<int>> snakeCoords)  // Gets new fruit coords
@@ -42,31 +47,37 @@ class Snake
 {
 public:
     vector<vector<int>> coords;
-    int direction = 0;  // 0 = STOP, 1 = LEFT, 2 = RIGHT, 3 = UP, 4 = DOWN
+    eDirection direction;
+    bool stopped;
 
     Snake()
     {
-        coords.push_back(snakeStartCoords);
+        direction = RIGHT;
+        stopped = true;
+        coords = snakeStartCoords;
     }
 
     void move()  // Move the snake
     {
+        if (stopped)
+            return;
+        
         switch (direction)
         {
-            case 1:
-                coords.push_back({coords[coords.size() - 1][0] - 1, coords[coords.size() - 1][1]});
+            case LEFT:
+                coords.push_back({coords.back()[0] - 1, coords.back()[1]});
                 break;
             
-            case 2:
-                coords.push_back({coords[coords.size() - 1][0] + 1, coords[coords.size() - 1][1]});
+            case RIGHT:
+                coords.push_back({coords.back()[0] + 1, coords.back()[1]});
                 break;
             
-            case 3:
-                coords.push_back({coords[coords.size() - 1][0], coords[coords.size() - 1][1] - 1});
+            case UP:
+                coords.push_back({coords.back()[0], coords.back()[1] - 1});
                 break;
             
-            case 4:
-                coords.push_back({coords[coords.size() - 1][0], coords[coords.size() - 1][1] + 1});
+            case DOWN:
+                coords.push_back({coords.back()[0], coords.back()[1] + 1});
                 break;
         }
     }
@@ -115,26 +126,29 @@ public:
     {
         if (_kbhit())
         {
+            if (snake.stopped)
+                snake.stopped = false;
+
             switch (_getch())
             {
                 case 'a':  // Left
-                    if (snake.direction != 2)  // Prevents the snake from turning around
-                        snake.direction = 1;
+                    if (snake.direction != RIGHT)  // Prevents the snake from turning around
+                        snake.direction = LEFT;
                     break;
                 
                 case 'd': // Right
-                    if (snake.direction != 1)
-                        snake.direction = 2;
+                    if (snake.direction != LEFT)
+                        snake.direction = RIGHT;
                     break;
                 
                 case 'w': // Up
-                    if (snake.direction != 4)
-                        snake.direction = 3;
+                    if (snake.direction != DOWN)
+                        snake.direction = UP;
                     break;
                 
                 case 's': // Down
-                    if (snake.direction != 3)
-                        snake.direction = 4;
+                    if (snake.direction != UP)
+                        snake.direction = DOWN;
                     break;
 
                 case 'x':
@@ -149,21 +163,19 @@ public:
         system("cls");
 
         // Print the top border
-        for (int x = 0; x < WIDTH * 2 + 3; x++)
+        for (int x = 0; x < WIDTH * 2 + 2; x++)
             cout << "#";
         cout << "\n";
 
         // Iterate through all positions on the board
         for (int y = 0; y < HEIGHT; y++)
         {
-            for (int x = -1; x <= WIDTH; x++)
+            // Print the left border
+            cout << "#";
+            for (int x = 0; x < WIDTH; x++)
             {
-                // Print the left and right border
-                if (x == -1 || x == WIDTH)
-                    cout << "#";
-                
                 // Print the snake head
-                else if (vector<int> {x, y} == snake.coords.back())
+                if (vector<int> {x, y} == snake.coords.back())
                     cout << GREEN << "O" << RESETCOLOR;
                 
                 // Print the snake body
@@ -191,15 +203,20 @@ public:
                 }   
                 cout << " ";  // Make the x evenly spaced with the y
             }
-            cout << "\n";
+            // Print the right border and a newline
+            cout << "#\n";
         }
 
         // Print the bottom border
-        for (int x = 0; x < WIDTH * 2 + 3; x++)
+        for (int x = 0; x < WIDTH * 2 + 2; x++)
             cout << "#";
         cout << "\n";
 
-        cout << "Score: " << snake.coords.size() - 1 << "\n";
+        // Print more information
+        cout << "Score: " << snake.coords.size() * 10 << "\n";
+        
+        if (snake.stopped)
+            cout << GREEN << "Press WASD to start moving." << RESETCOLOR;
     }
 
     void runGame()
@@ -211,10 +228,8 @@ public:
             input();
             snake.move();
 
-            if (snake.coords.back() != fruit.coords && snake.direction != 0)
-            {
+            if (snake.coords.back() != fruit.coords && !snake.stopped)
                 snake.shrink();
-            }
             
             else if (snake.winCheck())  // Win check
             {
@@ -231,10 +246,29 @@ public:
                 gameOver = true;
             }
 
-            Sleep(75); // Sleep for 100ms to make the game run at a reasonable speed
+            Sleep(75); // Sleep for n ms to make the game run at a reasonable speed
         }   
     }
 };
+
+bool playAgain()
+{
+    char input;
+    cout << "Play again? (y/n): ";
+    cin >> input;
+
+    if (input == 'y' || input == 'Y')
+        return true;
+    
+    else if (input == 'n' || input == 'N')
+        return false;
+    
+    else
+    {
+        cout << RED << "Invalid input.\n" << RESETCOLOR;
+        return playAgain();
+    }
+}
 
 int main()
 {
@@ -243,15 +277,8 @@ int main()
         Game game;
         game.runGame();
 
-        cout << "Play again? (y/n): ";
-        char playAgain;
-        cin >> playAgain;
-
-        if (playAgain == 'n')
+        if (!playAgain())
             break;
-        
-        else if (playAgain == 'y')
-            continue;
     }
     return 0;
 }
