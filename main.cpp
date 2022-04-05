@@ -3,10 +3,12 @@
 #include <conio.h>
 #include <vector>
 
-using namespace std;
+using std::cout;
+using std::vector;
 
-const int dimensions[2] = {20, 20};
-const vector<int> snakeStartCoords = {dimensions[0] / 2, dimensions[1] / 2};
+const int WIDTH = 20;
+const int HEIGHT = 20;
+const vector<int> snakeStartCoords = {WIDTH / 2, HEIGHT / 2};
 
 class Fruit
 {
@@ -20,7 +22,7 @@ public:
     void getNewCoords(vector<vector<int>> snakeCoords)  // Gets new fruit coords
     {
         coords.clear();
-        coords = {rand() % dimensions[0], rand() % dimensions[1]};
+        coords = {rand() % WIDTH, rand() % HEIGHT};
     }
 };
 
@@ -65,7 +67,7 @@ public:
     bool loseCheck()
     {
         // Check if the head is out of the map
-        if (coords.back()[0] < 0 || coords.back()[0] >= dimensions[0] || coords.back()[1] < 0 || coords.back()[1] >= dimensions[1])
+        if (coords.back()[0] < 0 || coords.back()[0] >= WIDTH || coords.back()[1] < 0 || coords.back()[1] >= HEIGHT)
         {
             return true;
         }
@@ -85,7 +87,7 @@ public:
     }
     bool winCheck()
     {
-        return coords.size() == dimensions[0] * dimensions[1];
+        return coords.size() == WIDTH * HEIGHT;
     }
 };
 
@@ -134,20 +136,20 @@ public:
     {
         system("cls");
 
-        cout << "Score: " << snake.coords.size() - 1 << endl;
+        cout << "Score: " << snake.coords.size() - 1 << "\n";
 
         // Print the top border
-        for (int x = 0; x < dimensions[1] * 2 - 1; x++)
+        for (int x = 0; x < WIDTH * 2 - 1; x++)
             cout << "#";
-        cout << endl;
+        cout << "\n";
 
         // Iterate through all positions on the board
-        for (int y = 0; y < dimensions[1]; y++)
+        for (int y = 0; y < HEIGHT; y++)
         {
-            for (int x = 0; x < dimensions[0]; x++)
+            for (int x = 0; x < WIDTH; x++)
             {
                 // Print the left and right border
-                if (x == 0 || x == dimensions[0] - 1)
+                if (x == 0 || x == WIDTH - 1)
                     cout << "#";
                 
                 // Print the snake head
@@ -179,13 +181,13 @@ public:
                 }   
                 cout << " ";  // Make the x evenly spaced with the y
             }
-            cout << endl;
+            cout << "\n";
         }
 
         // Print the bottom border
-        for (int x = 0; x < dimensions[1] * 2 - 1; x++)
+        for (int x = 0; x < WIDTH * 2 - 1; x++)
             cout << "#";
-        cout << endl;
+        cout << "\n";
     }
 
     void runGame()
@@ -204,18 +206,16 @@ public:
             
             else if (snake.winCheck())  // Win check
             {
-                cout << "You Win!" << endl;
+                cout << "You Win!\n";
                 gameOver = true;
             }
 
-            else if (snake.coords.back() == fruit.coords)  // If the snake eats the fruit
+            else if (snake.coords.back() == fruit.coords)  // If the snake eats the
                 fruit.getNewCoords(snake.coords);
-
-            
 
             if (snake.loseCheck() && !gameOver)  // Lose check
             {
-                cout << "You Lose!" << endl;
+                cout << "You Lose!\n";
                 gameOver = true;
             }
 
