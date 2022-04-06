@@ -160,27 +160,28 @@ public:
 
     void printBoard()
     {
-        system("cls");
+
+        vector<string> board = {""};
 
         // Print the top border
         for (int x = 0; x < WIDTH * 2 + 2; x++)
-            cout << "#";
-        cout << "\n";
+            board[0] += "#";
 
         // Iterate through all positions on the board
         for (int y = 0; y < HEIGHT; y++)
         {
+            board.push_back("");
             // Print the left border
-            cout << "#";
+            board[y + 1] += "#";
             for (int x = 0; x < WIDTH; x++)
             {
                 // Print the snake head
                 if (vector<int> {x, y} == snake.coords.back())
-                    cout << GREEN << "O" << RESETCOLOR;
+                    board[y + 1] += string(GREEN) + "O" + string(RESETCOLOR);
                 
                 // Print the snake body
                 else if (vector<int> {x, y} == fruit.coords)
-                    cout << RED << "*" << RESETCOLOR;
+                    board[y + 1] += string(RED)+ "*" + string(RESETCOLOR);
 
                 else
                 {
@@ -191,7 +192,7 @@ public:
                     {
                         if (vector<int> {x, y} == coord)
                         {
-                            cout << GREEN << "o" << RESETCOLOR;
+                            board[y + 1] += string(GREEN) + "o" + string(RESETCOLOR);
                             snakePart = true;
                             break;
                         }
@@ -199,18 +200,24 @@ public:
                     
                     // If the position is not in the body, print a blank space
                     if (!snakePart)
-                        cout << " ";
+                        board[y + 1] += " ";
                 }   
-                cout << " ";  // Make the x evenly spaced with the y
+                board[y + 1] += " ";  // Make the x evenly spaced with the y
             }
             // Print the right border and a newline
-            cout << "#\n";
+            board[y + 1] += "#";
         }
+
+        board.push_back("");
 
         // Print the bottom border
         for (int x = 0; x < WIDTH * 2 + 2; x++)
-            cout << "#";
-        cout << "\n";
+            board[board.size() - 1] += "#";
+
+        // Print the board
+        system("cls");  // Windows only
+        for (string line : board)
+            cout << line << "\n";
 
         // Print more information
         cout << "Score: " << snake.coords.size() * 10 << "\n";
